@@ -33,6 +33,20 @@ uint8_t txValue = 0;
 int pinsCount = 19;
 int pins[19] = {34,35,32,33,25,26,27,14,12,13,23,22,21,19,18,5,4,2,15};
 
+int keepActive = pins[3-1];
+int altas = pins[5-1];
+int faros = pins[6-1];
+int qDer = pins[7-1];
+int qIzq = pins[8-1];
+int segurosOff = pins[9-1];
+int segurosOn = pins[10-1];
+int accesorios = pins[13-1];
+int ign1 = pins[14-1];
+int ign2 = pins[15-1];
+int start = pins[16-1];
+int claxon = pins[17-1];
+int cajuela = pins[18-1];
+
 // See the folAPAGARing for generating UUIDs:
 // https://www.uuidgenerator.net/
 
@@ -42,136 +56,144 @@ int pins[19] = {34,35,32,33,25,26,27,14,12,13,23,22,21,19,18,5,4,2,15};
 #define PRENDER LOW
 #define APAGAR HIGH
 
-void onConnected(){
-  int qDer = pins[7-1], qIzq = pins[8-1];
-  digitalWrite(qDer,PRENDER);digitalWrite(qIzq,PRENDER);
-  delay(150);
-  digitalWrite(qDer,APAGAR);digitalWrite(qIzq,APAGAR);
-  delay(300);
-  digitalWrite(qDer,PRENDER);digitalWrite(qIzq,PRENDER);
-  delay(150);
-  digitalWrite(qDer,APAGAR);digitalWrite(qIzq,APAGAR);
-}
-
-void onDisconnected(){
-  int qDer = pins[7-1], qIzq = pins[8-1], activarSeguros = pins[10-1];
-  digitalWrite(qDer,PRENDER);digitalWrite(qIzq,PRENDER);
-  delay(150);
-  digitalWrite(qDer,APAGAR);digitalWrite(qIzq,APAGAR);
-  
-  digitalWrite(activarSeguros,PRENDER);
-  delay(300);
-  digitalWrite(activarSeguros,APAGAR);
-}
-
 void ClaxonLuces(int numVeces){
-  int luces = pins[6-1],claxon =pins[17-1];
-  digitalWrite(luces,PRENDER);
+  digitalWrite(faros,PRENDER);
   for(int i = 0; i < numVeces ; i++){    
     digitalWrite(claxon,PRENDER);
     delay(150);    
     digitalWrite(claxon,APAGAR);
     delay(100);
   }
-  digitalWrite(luces,APAGAR);
+  digitalWrite(faros,APAGAR);
 }
 
 void ClaxonLuces(int numVeces,int customDelay){
-  int luces = pins[6-1],claxon =pins[17-1];
-  digitalWrite(luces,PRENDER);
+  digitalWrite(faros,PRENDER);
   for(int i = 0; i < numVeces ; i++){    
     digitalWrite(claxon,PRENDER);
     delay(customDelay);    
     digitalWrite(claxon,APAGAR);
     delay(customDelay-50);
   }
-  digitalWrite(luces,APAGAR);
+  digitalWrite(faros,APAGAR);
+}
+
+void activarAlarma(){
+  ClaxonLuces(2);
+  digitalWrite(segurosOn,PRENDER);
+  delay(300);
+  digitalWrite(segurosOn,APAGAR);
+}
+
+void desactivarAlarma(){
+  ClaxonLuces(1);
+  digitalWrite(segurosOff,PRENDER);
+  delay(300);
+  digitalWrite(segurosOff,APAGAR);
 }
 void ponerSeguros(){
-  int activarSeguros = pins[10-1];
-  ClaxonLuces(2);
-  digitalWrite(activarSeguros,PRENDER);
+  digitalWrite(segurosOn,PRENDER);
   delay(300);
-  digitalWrite(activarSeguros,APAGAR);
+  digitalWrite(segurosOn,APAGAR);
 }
 
 void quitarSeguros(){
-  int quitarSeguros = pins[9-1];
-  ClaxonLuces(1);
-  digitalWrite(quitarSeguros,PRENDER);
+  digitalWrite(segurosOff,PRENDER);
   delay(300);
-  digitalWrite(quitarSeguros,APAGAR);
+  digitalWrite(segurosOff,APAGAR);
 }
+
 void secuenciaDeArranque(){
-  digitalWrite(pins[13-1],PRENDER);
-  digitalWrite(pins[14-1],PRENDER);
-  digitalWrite(pins[15-1],PRENDER);
+  digitalWrite(accesorios ,PRENDER);
+  digitalWrite(ign1 ,PRENDER);
+  digitalWrite(ign2 ,PRENDER);
   delay(100);
-  digitalWrite(pins[16-1],PRENDER);
+  digitalWrite(start ,PRENDER);
   delay(1100);
-  digitalWrite(pins[16-1],APAGAR);
+  digitalWrite(start ,APAGAR);
   quitarSeguros();
 }
 
 void secuenciaDeArranqueChida(){
-  int luces = pins[6-1],altas = pins[6-1],claxon =pins[17-1], qDer = pins[7-1], qIzq = pins[8-1];
-  ClaxonLuces(2,200);
+  quitarSeguros();
   digitalWrite(qDer,PRENDER);
-  delay(200);
+  delay(1500);
   digitalWrite(qIzq,PRENDER);
-  delay(200);
+  delay(1500);
   digitalWrite(altas,PRENDER);
+  delay(2500);
+  digitalWrite(altas,APAGAR);
+  digitalWrite(faros ,PRENDER);
+  delay(700);
+  digitalWrite(altas,PRENDER);
+  delay(1500);
+  digitalWrite(altas,APAGAR);
+  delay(700);
+  digitalWrite(altas,PRENDER);
+  digitalWrite(faros ,APAGAR);
   delay(600);
   digitalWrite(altas,APAGAR);
-  digitalWrite(luces,PRENDER);
-  delay(200);
-  digitalWrite(altas,PRENDER);
-  delay(200);
-  digitalWrite(altas,APAGAR);
-  delay(200);
-  digitalWrite(altas,PRENDER);
-  digitalWrite(luces,APAGAR);
-  delay(600);
-  digitalWrite(altas,APAGAR);
-  delay(200);
+  delay(800);
   digitalWrite(qIzq,APAGAR);
   delay(200);
   digitalWrite(qDer,APAGAR);
   delay(200);
   
-  secuenciaDeArranque();
-  delay(600);
-  ClaxonLuces(2,200);
+  digitalWrite(accesorios ,PRENDER);
+  digitalWrite(ign1 ,PRENDER);
+  digitalWrite(ign2 ,PRENDER);
+  delay(100);
+  digitalWrite(start ,PRENDER);
+  delay(1100);
+  digitalWrite(start ,APAGAR);
 }
 
 void secuenciaDeApagado(){
-  digitalWrite(pins[13-1],APAGAR);
-  digitalWrite(pins[14-1],APAGAR);
-  digitalWrite(pins[15-1],APAGAR);
+  digitalWrite(ign2 ,APAGAR);
+  digitalWrite(ign1 ,APAGAR);
+  digitalWrite(accesorios ,APAGAR);
   quitarSeguros();
 }
 
-
-
 void abrirCajuela(){
-   digitalWrite(pins[18-1],PRENDER);
+   digitalWrite(cajuela ,PRENDER);
   delay(300);
-  digitalWrite(pins[18-1],APAGAR);
+  digitalWrite(cajuela ,APAGAR);
 }
 
 void apagarDejarAcc(){
-  digitalWrite(pins[14-1],APAGAR);
-  digitalWrite(pins[15-1],APAGAR);
+  digitalWrite(ign1 ,APAGAR);
+  digitalWrite(ign2 ,APAGAR);
   quitarSeguros();
+}
+
+void onConnected(){
+  digitalWrite(qDer,PRENDER);digitalWrite(qIzq,PRENDER);
+  delay(300);
+  digitalWrite(qDer,APAGAR);digitalWrite(qIzq,APAGAR);
+  delay(500);
+  digitalWrite(qDer,PRENDER);digitalWrite(qIzq,PRENDER);
+  delay(300);
+  digitalWrite(qDer,APAGAR);digitalWrite(qIzq,APAGAR);
+}
+
+void onDisconnected(){
+  digitalWrite(qDer,PRENDER);digitalWrite(qIzq,PRENDER);
+  delay(300);
+  digitalWrite(qDer,APAGAR);digitalWrite(qIzq,APAGAR);
+  
+  ponerSeguros();
 }
 
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
+      onConnected();
     };
 
     void onDisconnect(BLEServer* pServer) {
       deviceConnected = false;
+      onDisconnected();
     }
 };
 
@@ -180,6 +202,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
       std::string rxValue = pCharacteristic->getValue();
 
       if (rxValue.length() > 0) {
+        /* 
         Serial.println("*********");
         Serial.println("Received Value: ");
         for (int i = 0; i < rxValue.length(); i++){
@@ -191,12 +214,11 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         }        
 
         Serial.println();
-        Serial.println("*********");
-        
-        
+        Serial.println("*********");        
+        */
         int primerByte = rxValue[0];
         
-        if (rxValue.size()==4 && primerByte == 200){
+        if (rxValue.length()==4 && primerByte == 200){
           int numPin = std::atoi(rxValue.substr(1,2).c_str());
           int accion =  std::atoi(rxValue.substr(3,3).c_str());
           Serial.println(numPin);
@@ -218,10 +240,10 @@ class MyCallbacks: public BLECharacteristicCallbacks {
               secuenciaDeArranqueChida();
               break;
             case 5:
-              ponerSeguros();
+              activarAlarma();
               break;
             case 6:
-              quitarSeguros();
+              desactivarAlarma();
               break;
             case 7:
               abrirCajuela();
@@ -234,7 +256,6 @@ class MyCallbacks: public BLECharacteristicCallbacks {
       }
     }
 };
-
 
 void setup() {
   Serial.begin(115200);
@@ -275,7 +296,6 @@ void setup() {
   Serial.println("Waiting a client connection to notify...");
 }
 
-
 void loop() {
 
   /*if (deviceConnected) {
@@ -291,12 +311,10 @@ void loop() {
     pServer->startAdvertising(); // restart advertising
     Serial.println("start advertising");
     oldDeviceConnected = deviceConnected;
-    onDisconnected();
   }
   // connecting
   if (deviceConnected && !oldDeviceConnected) {
     // do stuff here on connecting
     oldDeviceConnected = deviceConnected;
-    onConnected();
   }
 }
