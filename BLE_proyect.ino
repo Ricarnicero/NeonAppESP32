@@ -1,24 +1,3 @@
-/*
-    Video: https://www.youtube.com/watch?v=oCMOYS71NIU
-    Based on Neil Kolban example for IDF: https://github.com/nkolban/esp32-snippets/blob/master/cpp_utils/tests/BLE%20Tests/SampleNotify.cpp
-    Ported to Arduino ESP32 by Evandro Copercini
-
-   Create a BLE server that, once we receive a connection, will send periodic notifications.
-   The service advertises itself as: 6E400001-B5A3-F393-E0A9-E50E24DCCA9E
-   Has a characteristic of: 6E400002-B5A3-F393-E0A9-E50E24DCCA9E - used for receiving data with "WRITE"
-   Has a characteristic of: 6E400003-B5A3-F393-E0A9-E50E24DCCA9E - used to send data with  "NOTIFY"
-
-   The design of creating the BLE server is:
-   1. Create a BLE Server
-   2. Create a BLE Service
-   3. Create a BLE Characteristic on the Service
-   4. Create a BLE Descriptor on the characteristic
-   5. Start the service.
-   6. Start advertising.
-
-   In this example rxValue is the data received (only accessible inside that function).
-   And txValue is the data to be sent, in this example just a byte incremented every second.
-*/
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
@@ -30,25 +9,25 @@ bool deviceConnected = false;
 bool oldDeviceConnected = false;
 uint8_t txValue = 0;
 
-int pinsCount = 19;
-int pins[19] = {34,35,32,33,25,26,27,14,12,13,23,22,21,19,18,5,4,2,15};
 
-int keepActive = pins[3-1];
-int altas = pins[5-1];
-int faros = pins[6-1];
-int qDer = pins[7-1];
-int qIzq = pins[8-1];
-int segurosOff = pins[9-1];
-int segurosOn = pins[10-1];
-int accesorios = pins[13-1];
-int ign1 = pins[14-1];
-int ign2 = pins[15-1];
-int start = pins[16-1];
-int claxon = pins[17-1];
-int cajuela = pins[18-1];
+int claxon = GPIO_NUM_9;
 
-// See the folAPAGARing for generating UUIDs:
-// https://www.uuidgenerator.net/
+int accesorios = GPIO_NUM_0;
+int ign1 = GPIO_NUM_1;
+int ign2 = GPIO_NUM_2;
+int start = GPIO_NUM_4;
+
+
+int altas = GPIO_NUM_5;
+int faros = GPIO_NUM_6;
+int qDer = GPIO_NUM_7;
+int qIzq = GPIO_NUM_8;
+int segurosOff = GPIO_NUM_19;
+int segurosOn = GPIO_NUM_18;
+
+int cajuela = GPIO_NUM_10;
+
+int pins[19] = {accesorios,ign1,ign2,start,altas,faros,qDer,qIzq};
 
 #define SERVICE_UUID           "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" // UART service UUID
 #define CHARACTERISTIC_UUID_RX "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
@@ -60,9 +39,9 @@ void ClaxonLuces(int numVeces){
   digitalWrite(faros,PRENDER);
   for(int i = 0; i < numVeces ; i++){    
     digitalWrite(claxon,PRENDER);
-    delay(150);    
+    delay(100);    
     digitalWrite(claxon,APAGAR);
-    delay(100);
+    delay(50);
   }
   digitalWrite(faros,APAGAR);
 }
@@ -212,7 +191,6 @@ class MyCallbacks: public BLECharacteristicCallbacks {
           Serial.print(ascii);
           Serial.print(" | ");
         }        
-
         Serial.println();
         Serial.println("*********");        
         */
@@ -257,12 +235,50 @@ class MyCallbacks: public BLECharacteristicCallbacks {
     }
 };
 
+void initPins(){
+  pinMode(claxon, OUTPUT);
+  digitalWrite(claxon,APAGAR);
+  
+  pinMode(accesorios, OUTPUT);
+  digitalWrite(accesorios,APAGAR);
+  
+  pinMode(ign1, OUTPUT);
+  digitalWrite(ign1,APAGAR);
+  
+  pinMode(ign2, OUTPUT);
+  digitalWrite(ign2,APAGAR);
+  
+  pinMode(start, OUTPUT);
+  digitalWrite(start,APAGAR);
+  
+  pinMode(altas, OUTPUT);
+  digitalWrite(altas,APAGAR);
+  
+  pinMode(faros, OUTPUT);
+  digitalWrite(faros,APAGAR);
+  
+  pinMode(qDer, OUTPUT);
+  digitalWrite(qDer,APAGAR);
+  
+  pinMode(qIzq, OUTPUT);
+  digitalWrite(qIzq,APAGAR);
+  
+  pinMode(segurosOff, OUTPUT);
+  digitalWrite(segurosOff,APAGAR);
+  
+  pinMode(segurosOn, OUTPUT);
+  digitalWrite(segurosOn,APAGAR);
+  
+  pinMode(cajuela, OUTPUT);
+  digitalWrite(cajuela,APAGAR);
+}
+
 void setup() {
   Serial.begin(115200);
-  for(int i = 0;i<pinsCount;i++){
-    pinMode(pins[i], OUTPUT);
-    digitalWrite(pins[i],APAGAR);
-  }
+  
+  initPins();
+  
+    
   // Create the BLE Device
   BLEDevice::init("ESP32test");
 
